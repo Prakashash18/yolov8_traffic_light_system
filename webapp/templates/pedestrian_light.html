@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pedestrian Traffic Light</title>
+    <style>
+.light {
+    width: 150px;
+    height: 400px;
+    background-color: #333;
+    border-radius: 10px;
+    margin: 10px;
+    position: relative;
+}
+
+.light:before {
+    content: '';
+    display: block;
+    width: 130px;
+    height: 130px;
+    background-color: #FF4136;
+    border-radius: 50%;
+    position: absolute;
+    top: 20px;
+    left: 10px;
+}
+
+.light:after {
+    content: '';
+    display: block;
+    width: 130px;
+    height: 130px;
+    background-color: #FFD700;
+    border-radius: 50%;
+    position: absolute;
+    top: 160px;
+    left: 10px;
+}
+
+.green-man {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 100px;
+    position: absolute;
+    top: 250px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-image: url("https://img.icons8.com/plasticine/2x/running.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.red-man {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 100px;
+    position: absolute;
+    top: 250px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-image: url("https://img.icons8.com/emoji/2x/person-pouting-emoji.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.button {
+    margin-top: 10px;
+}
+
+.message {
+    margin-top: 10px;
+    font-size: 20px;
+    font-weight: bold;
+}
+</style>
+<script>
+    function countdown() {
+        var seconds = 30;
+        var countdownTimer = setInterval(function() {
+            seconds--;
+            document.getElementById("timer").innerHTML = "Timer: " + seconds + "s";
+            if (seconds <= 0) {
+                clearInterval(countdownTimer);
+                document.getElementById("timer").innerHTML = "Timer: 0s";
+            }
+        }, 1000);
+    }
+</script>
+</head>
+<body onload="countdown()">
+    <div class="light red red-man"></div>
+    <div class="light green green-man"></div>
+    <div class="message">{{ message }}</div>
+    <div class="timer" id="timer">Timer: 30s</div>
+    <form method="post">
+        <input type="submit" name="button" value="Press" class="button">
+    </form>
+</body>
+</html>

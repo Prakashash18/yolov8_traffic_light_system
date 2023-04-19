@@ -1,0 +1,812 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Mobility Traffic Crossing System</title>
+<!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous"> -->
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script> -->
+<!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous"> -->
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script> -->
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
+</head>
+<body class="bg-dark text-white">
+
+<!-- Add About and Settings modals -->
+<!-- About Modal -->
+<div class="modal fade" id="aboutModal" tabindex="-1" aria-labelledby="aboutModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="aboutModalLabel">About</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+        <!-- Credits Paragraph -->
+        <p >
+            Credits: This application was developed by Jinko Chino with the support of Huawei and ITE.
+        </p>
+        <!-- Supporter Logos -->
+        <div class="d-flex justify-content-center">
+            <img src="{{ url_for('static', filename='huawei_logo.png') }}" alt="Huawei Logo" class="supporter-logo me-3" style="width: 100px; height: auto;">
+            <img src="{{ url_for('static', filename='ite_logo.png') }} " alt="ITE Logo" class="supporter-logo" style="width: 100px; height: auto;">
+        </div>
+        <!-- Done By Paragraph -->
+        <p>
+            Done by: Jinko Chino with special thanks to our mentors and supporters.
+        </p>
+        
+        </div>
+        <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+    </div>
+    </div>
+</div>
+
+<div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="settingsModalLabel">Settings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Audio toggle -->
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="audioToggle" >
+                        <label class="form-check-label" for="audioToggle">Enable Audio</label>
+                    </div>
+            
+                <!-- Volume slider -->
+                    <div class="mb-3">
+                        <label for="volumeSlider" class="form-label">Volume: <span id="volumeValue">50</span>%</label>
+                        <input type="range" class="form-range" id="volumeSlider" min="0" max="100" step="1" value="50">
+                    </div>
+
+                    <!-- Confidence level slider -->
+                    <div class="mb-3">
+                        <label for="confidenceSlider" class="form-label">Confidence Level: <span id="confidenceValue">50</span>%</label>
+                        <input type="range" class="form-range" id="confidenceSlider" min="0" max="100" step="1" value="50">
+                    </div>
+                    <!-- </div> -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+            </div>
+        </div>
+    </div>
+</div>
+
+    <audio id="red-to-green" src="{{ url_for('static', filename='red_to_green.mp3') }}" preload="auto" loop></audio>
+    <audio id="green-to-blinking" src="{{ url_for('static', filename='green_to_blinking.mp3') }}" preload="auto" loop></audio>
+    <audio id="background-music" src="{{ url_for('static', filename='background_music.mp3') }}" preload="auto" loop></audio>
+    <div class="container-fluid" style="width:100%;">
+        <div class="row" style="min-height: 5vh;">
+            <div class="col-md-8 col-lg-8">
+                <h1 class="mb-4 italic">     
+                    <img src="{{ url_for('static', filename='icon.png') }}" alt="Icon" class="icon me-2">       
+                    Mobility Traffic Crossing System
+                </h1>
+            </div>
+        
+            <div class="col-md-4 col-lg-4">
+                <!-- Add the menu items to trigger modals -->
+                <ul class="nav justify-content-end">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#aboutModal">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#settingsModal">Settings</a>
+                    </li>
+                    <li class="nav-item">
+
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+
+        <!-- </div> -->
+        <div class="row" style="min-height: 5vh;">
+            <div class="traffic-states-container">
+                <span id="state-0" class="traffic-state active">Waiting</span>
+                <span id="state-1" class="traffic-state">Detected Mobility Device</span>
+                <span id="state-2" class="traffic-state">Informed ECS Server</span>
+                <span id="state-3" class="traffic-state">Audio Enhanced</span>
+                <span id="state-4" class="traffic-state">Time Added</span>
+                <span id="state-5" class="traffic-state">Started Crossing</span>
+                <span id="state-6" class="traffic-state">Automatic Time Extension Activated</span>
+                <span id="state-7" class="traffic-state">Crossing Ended</span>
+            </div>
+        
+        </div>
+    
+
+        <div class="row" style="min-height: 90vh;">
+            <div class="col-md-3 col-lg-3">
+    
+                <img id="red-man" src="{{ url_for('static', filename='traffic_light_1.png') }}" style="display: block;">
+                <img id="red-man-yellow" src="{{ url_for('static', filename='traffic_light_2.png') }}" style="display: none;">
+                <img id="red-man-red" src="{{ url_for('static', filename='traffic_light_3.png') }}" style="display: none;">
+                <img id="green-man" src="{{ url_for('static', filename='traffic_light_4.png') }}" style="display: none;">
+                <img id="blinking-icon" src="{{ url_for('static', filename='traffic_light_5.png') }}" style="display: none;">
+
+        
+            </div>
+            <div class="col-md-3 col-lg-3 ">
+                <img id="button-not-pressed" class="cross-btn" src="{{ url_for('static', filename='button_not_pressed.png') }}" style="display: block;">
+                <img id="button-pressed" class="cross-btn" src="{{ url_for('static', filename='button_pressed.png') }}" style="display: none;">
+                <img id="button-activated" class="cross-btn" src="{{ url_for('static', filename='button_activated.png') }}" style="display: none;">
+
+                <div id="timer" class="d-flex ">
+                    <img class="led-digit" id="timer-tens" data-src-prefix="{{ url_for('static', filename='led_digit_') }}">
+                    <img class="led-digit" id="timer-ones" data-src-prefix="{{ url_for('static', filename='led_digit_') }}">
+                </div>    
+            </div>  
+            <div class="col-md-6 col-lg-6" >
+                <!-- <canvas id="webcam-canvas" width="640" height="640"></canvas>
+                <video id="webcam" width="640" height="640" autoplay playsinline muted style="position: absolute; opacity: 0;"></video> -->
+                <div id="object-detection-text" class="container-fluid text-center p-2" style="background-color: black; color: white;">
+                    No object detected
+                </div>
+                    <canvas id="webcam-canvas" width="1920" height="1080"></canvas>
+                    <canvas id="webcam-canvas-test" width="1920" height="1080" style="position: absolute; opacity: 0;" ></canvas>
+                    <video id="webcam" width="1920" height="1080" style="position: absolute; opacity: 0;" autoplay playsinline muted></video>
+
+            </div>
+        
+        </div>
+
+    </div>
+
+
+<style>
+body {
+    min-height: 100vh;
+    background-color: black;
+    /* display: flex; */
+    /* flex-direction: column; */
+    /* justify-content: center; */
+}
+
+img {
+    max-width: 100%;
+    max-height: calc(100vh - 200px);
+    object-fit: contain;
+}
+
+#object-detection-text {
+    transition: background-color 0.5s, color 0.5s;
+}
+.modal-body {
+    color: #333; /* Adjust the color value as needed */
+}
+
+.modal-header {
+    color: #333; /* Adjust the color value as needed */
+}
+.icon {
+    height: 32px;
+    width: 32px;
+    vertical-align: middle;
+}
+.italic {
+    font-style: italic;
+}
+.traffic-states-container {
+display: flex;
+justify-content: space-around;
+align-items: center;
+width: 100%;
+padding: 10px;
+background-color: #1a2a6c;
+color: #ffffff;
+}
+
+.traffic-state {
+display: none;
+text-align: center;
+font-size: 34px;
+background-color: rgba(0, 0, 0, 0.2);
+
+font-family: Arial, sans-serif;
+}
+
+.traffic-state.active {
+display: block;
+}
+
+@keyframes blink {
+0% {
+opacity: 1;
+}
+50% {
+opacity: 0;
+}
+100% {
+opacity: 1;
+}
+}
+
+.blink {
+animation: blink 0.5s ease-in-out infinite;
+}
+
+#webcam-canvas, #webcam {
+width: 100%;
+height: 100%;
+}
+
+/* #webcam {
+position: absolute;
+top: 0;
+left: 0;
+opacity: 0;
+} */
+
+
+
+</style>
+
+<script >
+// $(document).ready(function() {
+//     $('#myButton').click(function() {
+//         alert('Button clicked');
+//     });
+// });
+
+document.addEventListener("DOMContentLoaded", () => {
+console.log("In cross btns");
+
+// const myButton = document.getElementById("myButton");
+// myButton.addEventListener("click", () => {
+// console.log("Button clicked");
+// });
+
+
+//prakash
+
+const redMan = document.getElementById("red-man");
+const greenMan = document.getElementById("green-man");
+const redManYellow = document.getElementById("red-man-yellow");
+const redManRed = document.getElementById("red-man-red");
+
+// const crossBtn = document.getElementById("cross-btn");
+const timer = document.getElementById("timer");
+const blinkingIcon = document.getElementById("blinking-icon");
+
+const buttonNotPressed = document.getElementById("button-not-pressed");
+const buttonPressed = document.getElementById("button-pressed");
+const buttonActivated = document.getElementById("button-activated");
+
+const timerTens = document.getElementById("timer-tens");
+const timerOnes = document.getElementById("timer-ones");
+
+// const audioToggle = document.getElementById("audio-toggle");
+const audioToggle = document.getElementById("audioToggle");
+
+const backgroundMusic = document.getElementById("background-music");
+
+const canvas = document.getElementById("webcam-canvas");
+const video = document.getElementById("webcam");
+const ctx = document.getElementById("webcam-canvas").getContext("2d");
+
+const objectDetectionText = document.getElementById("object-detection-text");
+const volumeSlider = document.getElementById("volumeSlider");
+
+canvas.width = video.videoWidth;
+canvas.height = video.videoHeight;
+
+console.log(canvas.width, canvas.height, video.width, video.height);
+
+let blinkInterval;
+let crossing_timing = 10;
+
+let awardedExtraTime = false;
+
+
+const volumeValue = document.getElementById("volumeValue");
+const trafficStates = document.getElementsByClassName("traffic-state");
+// let activeIndex = 0;
+
+// Initialize variables for settings
+let audioEnabled = false;
+let audioVolume = 50;
+let confidenceLevel = 0;
+
+let detectionBoxColor = "rgba(0, 255, 0, 1)"; //default green
+
+console.log("In cross btns 2");
+
+function showNextTrafficState(activeIndex) {
+    for(let i=0; i<trafficStates.length; i++){
+        trafficStates[i].classList.remove('active');
+        trafficStates[i].classList.remove('blink');
+    }
+    
+    trafficStates[activeIndex].classList.add('active');
+    trafficStates[activeIndex].classList.add('blink');
+
+}
+
+showNextTrafficState(0);
+
+video.addEventListener("loadedmetadata", () => {
+
+    const aspectRatio = video.videoWidth / video.videoHeight;
+    const canvas = document.getElementById("webcam-canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoWidth / aspectRatio;
+    // canvas.width = video.videoWidth;
+    // canvas.height = video.videoHeight;
+
+    console.log(canvas.height, "oh no !");
+    console.log(canvas.width);
+});
+
+if (typeof navigator.getUserMedia !== 'undefined') {
+    const constraints = { width: { ideal: 960 }, height: { ideal: 720  } };
+
+    navigator.mediaDevices.getUserMedia({  audio: false, video:constraints })
+    .then(stream => {
+        video.srcObject = stream;
+        console.log("Started stream")
+    
+    })
+    .catch(err => {
+        console.error("Error accessing webcam: ", err);
+    });
+}
+else{
+    console.log("Cannot get video at all !")
+}
+
+console.log("In cross btns 3");
+
+
+
+// Add this function to your script section
+async function processFrame() {
+    // console.log(canvas.width, canvas.height);
+    // Set the canvas dimensions to match the video dimensions
+    // const video = document.getElementById("video");
+    const canvas2 = document.getElementById("webcam-canvas-test");
+    canvas2.width = video.videoWidth;
+    canvas2.height = video.videoHeight;
+
+    // Get the image data from the video
+    const ctx2 = canvas2.getContext("2d");
+    ctx2.drawImage(video, 0, 0);
+
+    const imageData = canvas2.toDataURL('image/png').replace(/^data:image\/(png|jpg);base64,/, '');
+
+    try {
+        const response = await fetch("/predict", {
+        method: "POST",
+        headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+                body: new URLSearchParams({ image_data: imageData })
+        });
+        const result = await response.json();
+        // console.log(result);
+
+        // Display the object detection results on the webcam view
+        // You will need to implement your own function to display the results
+        displayObjectDetectionResults(result);
+
+        // Continue processing the next frame
+        requestAnimationFrame(processFrame);
+    } catch (err) {
+        console.error("Error processing frame: ", err);
+    }
+}
+
+
+
+function displayObjectDetectionResults(result) {
+    if (video && video.readyState === video.HAVE_ENOUGH_DATA ) {
+
+
+    const ctx = canvas.getContext("2d");
+
+    // Clear the canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw the video frame on the canvas
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    // Set font properties
+    ctx.font = "16px sans-serif";
+    ctx.textBaseline = "top";
+
+    result = result[0];
+    // console.log(result["bboxes"]);
+
+
+    if(result["bboxes"].length > 0){
+            // Draw bounding box and text for the single result
+        // console.log(result["bboxes"]);
+        const [x, y, width, height] = result["bboxes"][0];
+        const label = result["labels"][0];
+        const confidence = (result["scores"][0] * 100).toFixed(1);
+
+        // console.log(label, confidence);
+        if (confidence > confidenceLevel) {
+            // const xmin = y * video.videoWidth;
+            // const ymin = x * video.videoHeight;
+            // const xmax = height * video.videoWidth;
+            // const ymax = width * video.videoHeight;
+
+            ctx.strokeStyle = detectionBoxColor;
+            ctx.lineWidth = 4;
+            ctx.strokeRect(x, y, width-x, height-y);
+
+
+            ctx.font = "32px Arial";
+            ctx.fillStyle = "rgba(255, 255, 255, 1)";
+            if(awardedExtraTime){
+                ctx.fillText("Extra Time Awarded !", x, y-5);
+            }
+            else{
+                ctx.fillText(`${label}: ${Math.round(confidence)} %`, x, y - 5);
+
+            }
+
+            // Update object detection text element
+            objectDetectionText.textContent = `Detected: ${label} (${confidence}%)`;
+            objectDetectionText.style.backgroundColor = "green";
+            objectDetectionText.style.color = "white";
+                    
+        }
+        // else{
+        //     objectDetectionText.textContent = "No object detected";
+        //     objectDetectionText.style.backgroundColor = "black";
+        //     objectDetectionText.style.color = "white";
+        // }
+    }
+    else{
+        objectDetectionText.textContent = "No object detected";
+            objectDetectionText.style.backgroundColor = "black";
+            objectDetectionText.style.color = "white";
+    }
+    
+    }
+}
+
+// Call the processFrame function when the video is playing
+video.addEventListener("playing", () => {
+    const canvas = document.getElementById("webcam-canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    requestAnimationFrame(processFrame);
+});
+
+console.log("In cross btns 4");
+
+
+// video.addEventListener("resize", () => {
+//     const canvas = document.getElementById("webcam-canvas");
+//     canvas.width = video.videoWidth;
+//     canvas.height = video.videoHeight;
+// });
+
+function adjustVolume(amt){
+    const allAudio = document.querySelectorAll("audio");
+        for (let i = 0; i < allAudio.length; i++) {
+            if (!allAudio[i].paused) {
+                console.log("Inside adjust volume not paused !");
+                allAudio[i].volume = amt;
+                console.log(allAudio[i].volume);
+
+                allAudio[i].play();
+            }
+        }
+
+        volumeValue.textContent = audioVolume;
+        volumeSlider.value = audioVolume;
+}
+
+function pollFunction() {
+    // Your polling logic goes here
+    if(objectDetectionText.textContent == "blind_aid"){
+        showNextTrafficState(3);
+        adjustVolume(0.8);
+    }
+}
+const pollInterval = 1000; // Poll every 5 seconds
+
+let pollTimer = setInterval(pollFunction, pollInterval);
+
+//prakash
+
+
+const confidenceSlider = document.getElementById("confidenceSlider");
+const confidenceValue = document.getElementById("confidenceValue");
+
+
+
+// Update the values on load
+volumeValue.textContent = volumeSlider.value;
+confidenceValue.textContent = confidenceSlider.value;
+
+console.log("In cross btns 5");
+
+// Event listeners for the settings
+audioToggle.addEventListener("change", function() {
+    console.log("In audio 1");
+
+    audioEnabled = audioToggle.checked;
+    if(!audioEnabled){
+        stopAllAudio();
+    }else {
+        playAudio(backgroundMusic);
+
+    }
+});
+
+
+volumeSlider.addEventListener("input", function() {
+    audioVolume = volumeSlider.value;
+    const allAudio = document.querySelectorAll("audio");
+    for (let i = 0; i < allAudio.length; i++) {
+        if (!allAudio[i].paused) {
+            allAudio[i].volume = audioVolume / 100;
+        }
+    }
+    volumeValue.textContent = audioVolume; // Update the displayed value
+
+});
+
+
+confidenceSlider.addEventListener("input", function() {
+    confidenceLevel = confidenceSlider.value;
+    confidenceValue.textContent = confidenceLevel; // Update the displayed value
+
+});
+
+
+//prakash
+function stopAllAudio() {
+    const allAudio = document.querySelectorAll("audio");
+    for (let i = 0; i < allAudio.length; i++) {
+        allAudio[i].pause();
+        allAudio[i].currentTime = 0;
+    }
+}
+
+
+function playAudio(audioElement) {
+if(audioEnabled){
+    stopAllAudio();
+    // audioElement.volume = audioVolume / 100;
+    audioElement.play();
+}
+
+}
+
+
+
+function updateLEDTimer(tens, ones) {
+timerTens.src = timerTens.dataset.srcPrefix + tens + ".png";
+timerOnes.src = timerOnes.dataset.srcPrefix + ones + ".png";
+}
+updateLEDTimer(0, 0); //default display 
+
+
+
+
+function updateButtonState(state) {
+buttonNotPressed.style.display = state === "not-pressed" ? "block" : "none";
+buttonPressed.style.display = state === "pressed" ? "block" : "none";
+buttonActivated.style.display = state === "activated" ? "block" : "none";
+
+}
+
+
+
+function setButtonEnabled(enabled) {
+for (let i = 0; i < crossBtns.length; i++) {
+    crossBtns[i].style.pointerEvents = enabled ? "auto" : "none";
+    crossBtns[i].style.opacity = enabled ? "1" : "0.5";
+}
+}
+
+
+
+function runLights(state){
+redManYellow.style.display = state === "red-man-yellow" ? "block" : "none";
+redManRed.style.display = state === "red-man-red" ? "block" : "none";
+redMan.style.display = "none";
+greenMan.style.display = "none";
+blinkingIcon.style.display = "none";
+}
+
+// Update the crossBtn event listener
+const crossBtns = document.getElementsByClassName("cross-btn");
+for (let i = 0; i < crossBtns.length; i++) {
+
+crossBtns[i].addEventListener("click", () => {
+setButtonEnabled(false);
+//check if object detected !
+if(objectDetectionText.textContent=="No object detected"){
+    //no time extensions
+    crossing_timing = 10;
+    showNextTrafficState(0);
+
+}else{
+    showNextTrafficState(1);
+    audioEnabled = true;
+    adjustVolume(0.3)
+    if( objectDetectionText.textContent.includes("walking_aid")){
+    crossing_timing = 10 + 5;
+    }
+    else if(objectDetectionText.textContent.includes("blind_aid")){
+    crossing_timing = 10 + 5;
+    }
+    else if(objectDetectionText.textContent.includes("wheelchair")){
+    crossing_timing = 10 + 5;
+
+    }
+    else if(objectDetectionText.textContent.includes("walking_aid_1")){
+    crossing_timing = 10 + 5;
+
+    }
+
+}
+updateButtonState("activated");
+
+setTimeout(() => {
+    if(crossing_timing > 10){
+        showNextTrafficState(1);
+
+    }
+    updateButtonState("pressed");
+    fetch("/crossing", {
+    method: "POST",
+    headers: {
+            "Content-Type": "application/json",
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+    setTimeout(() => {
+        runLights("red-man-yellow");
+        if(crossing_timing > 10){
+            showNextTrafficState(2);
+        }
+        setTimeout(()=>{
+            runLights("red-man-red");
+            if(crossing_timing > 10){
+                showNextTrafficState(3);
+            }
+            setTimeout(()=>{
+                crossingInProgress = true;
+                updateLight(data.change_light);
+                updateTimer(crossing_timing);
+                showNextTrafficState(5);
+                updateButtonState("activated");
+            }, 1000);
+        },1000);
+    }, 1000);
+    
+    });
+}, 500);
+});
+}
+
+
+function updateLight(light) {
+const redToGreenAudio = document.getElementById("red-to-green");
+const greenToBlinkingAudio = document.getElementById("green-to-blinking");
+if (light === "green") {
+    redMan.style.display = "none";
+    greenMan.style.display = "block";
+    blinkingIcon.style.display = "none";
+    playAudio(redToGreenAudio);
+
+} else if (light === "blinking") {
+    redMan.style.display = "none";
+    greenMan.style.display = "none";
+    blinkingIcon.style.display = "block";
+    playAudio(greenToBlinkingAudio);
+} else {
+    greenMan.style.display = "none";
+    blinkingIcon.style.display = "none";
+    redMan.style.display = "block";
+    playAudio(backgroundMusic);
+}
+redManYellow.style.display = "none";
+redManRed.style.display = "none";
+}
+
+function isObjectStillInFrame() {
+// Replace "blind_aid" with the specific label you want to track
+return objectDetectionText.textContent.includes("blind_aid") || objectDetectionText.textContent.includes("wheelchair") || objectDetectionText.textContent.includes("walking_aid")||objectDetectionText.textContent.includes("walking_aid_1");
+}
+
+function updateTimer(remainingTime) {
+const tens = Math.floor(remainingTime / 10);
+const ones = remainingTime % 10;
+updateLEDTimer(tens, ones);
+// timer.textContent = remainingTime;
+
+if (remainingTime < 5 && remainingTime > 0) {
+    updateLight("blinking");
+    setTimeout(() => {
+        updateLight("green");
+    }, 500);
+}
+
+
+
+if (remainingTime > 0) {
+    // Check if there are 3 seconds left and the object is still in the frame
+    if (remainingTime === 3 && isObjectStillInFrame() && !awardedExtraTime) {
+        // Add extra crossing time
+        detectionBoxColor = "rgba(255, 0, 0, 1)";
+        awardedExtraTime = true;
+
+        setTimeout(()=>{
+            remainingTime += 5;
+            showNextTrafficState(6); //auto time extension
+            adjustVolume(0.9);
+            updateTimer(remainingTime - 1);
+
+        }, 2000);
+        
+
+        //push up audio
+
+    }
+    else{
+        setTimeout(() => {
+            updateTimer(remainingTime - 1);
+        }, 1000);
+    }
+    
+} else {
+    updateLight("red");
+    showNextTrafficState(7); //ended
+    setButtonEnabled(true);
+    detectionBoxColor = "rgba(0, 255, 0, 1)"; 
+
+    if(awardedExtraTime){
+        // audioEnabled = audioToggle.checked;
+        audioEnabled = false
+        stopAllAudio();
+        awardedExtraTime = false;
+    }
+    stopAllAudio();
+    setTimeout(()=>{
+        showNextTrafficState(0); 
+    }, 500);
+
+}
+}
+console.log("In cross btns 6");
+
+//prakash
+
+
+
+
+});
+
+
+
+
+
+</script>
+</body>
+</html>
