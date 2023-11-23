@@ -26,7 +26,7 @@ detection_buffer = []
 buffer_length = 10
 
 # Load your SavedModel
-PATH_TO_SAVED_MODEL = "./exported-models/best222.pt"
+PATH_TO_SAVED_MODEL = "./exported-models/Traffic_best_20Nov.pt"
 
 model = YOLO(PATH_TO_SAVED_MODEL)
 
@@ -54,9 +54,11 @@ def predict():
         image_data = request.form['image_data']
         image = Image.open(io.BytesIO(base64.b64decode(image_data)))
         #preprocess image
-        frame = preprocess_image(image)
+        rgb_image = preprocess_image(image)
+
+        frame = np.array(rgb_image)
+        print("Am here : ", frame.shape)
         # Predict
-        # print(frame.shape)
         results = model(frame, device="mps")
         # print(results)
 
@@ -69,8 +71,9 @@ def preprocess_image(image):
     # Convert PIL image to OpenCV format
     global id
     # frame = cv2.imshow('Image', np.array(image))
+    rgb_image = image.convert('RGB')
 
-    frame = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+    # frame = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
     # id = id+ 1
     # cv2.imwrite(f"./images/image{id}.jpg", frame)
 
@@ -80,7 +83,7 @@ def preprocess_image(image):
     # image_np = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     # input_tensor = tf.convert_to_tensor(image_np)[tf.newaxis, ...]
 
-    return frame
+    return rgb_image
 
 def postprocess_predictions(results):
     # Add your own post-processing steps and create the response here
@@ -95,7 +98,7 @@ def postprocess_predictions(results):
     labels = np.array(result.boxes.cls.cpu(), dtype="int")
 
 
-    # print(labels, scores)
+    print(labels, scores)
 
     # Replace this with your actual class names
     labels = [str(model.names[int(n)]) for n in labels]

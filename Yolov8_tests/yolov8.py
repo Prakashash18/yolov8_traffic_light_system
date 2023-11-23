@@ -2,7 +2,7 @@ import cv2
 from ultralytics import YOLO
 import numpy as np
 
-model = YOLO("./yolov8model/200 epcohs/best222.pt")
+model = YOLO("./yolov8model/test/Traffic_best_20Nov.pt")
 
 print(model.names)
 
