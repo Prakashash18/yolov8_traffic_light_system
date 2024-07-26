@@ -71,7 +71,7 @@ tensorboard==2.12.1
 tensorboard-data-server==0.7.0
 tensorboard-plugin-wit==1.8.1
 thop==0.1.1.post2209072238
-torch==2.0.0
+torch==2.2.1
 torchvision==0.15.1
 tqdm==4.65.0
 traitlets==5.9.0
