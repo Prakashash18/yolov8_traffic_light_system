@@ -15,6 +15,9 @@ import torch
 app = Flask(__name__)
 CORS(app)  # Enable CORS
 
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB
+
+
 crossing_time = 10
 end_time = 0
 id = 0
