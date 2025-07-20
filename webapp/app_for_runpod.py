@@ -76,9 +76,9 @@ def postprocess_predictions(results):
 
     result = results[0]
     bboxes = result.boxes.xyxy
-    scores = np.array(result.boxes.conf.cpu(), dtype="float")
-    bboxes = np.array(result.boxes.xyxy.cpu(), dtype="int")
-    labels = np.array(result.boxes.cls.cpu(), dtype="int")
+    scores = result.boxes.conf.cpu().numpy().astype("float")
+    bboxes = result.boxes.xyxy.cpu().numpy().astype("int")
+    labels = result.boxes.cls.cpu().numpy().astype("int")
 
     print(labels, scores)
 
