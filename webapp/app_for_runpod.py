@@ -12,6 +12,10 @@ from ultralytics import YOLO
 from flask_cors import CORS
 import torch
 
+import sys
+import json
+
+
 app = Flask(__name__)
 CORS(app)  # Enable CORS
 
@@ -65,6 +69,7 @@ def predict():
 
         # Post-process the predictions and return the response
         response = postprocess_predictions(results)
+        print("Response size (bytes):", len(json.dumps(response).encode()))
         return jsonify([response])
 
 def preprocess_image(image):
