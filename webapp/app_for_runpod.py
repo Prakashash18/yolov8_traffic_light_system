@@ -50,6 +50,7 @@ def predict():
     if request.method == 'POST':
         # Read the image data from the request
         image_data = request.form['image_data']
+        print("Incoming base64 size (bytes):", len(image_data.encode()))
         image = Image.open(io.BytesIO(base64.b64decode(image_data)))
 
         # Preprocess image
