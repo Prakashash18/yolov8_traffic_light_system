@@ -70,7 +70,6 @@ def predict():
     
     except Exception as e:
         print("🔥 Error in /predict:")
-        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 def preprocess_image(image):
