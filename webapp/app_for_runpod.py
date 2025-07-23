@@ -52,12 +52,14 @@ def handle_crossing():
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        image_data = request.form['image_data']
-        print("Incoming base64 size (bytes):", len(image_data.encode()))
-        image = Image.open(io.BytesIO(base64.b64decode(image_data)))
+        # Read image file from form
+        image_file = request.files['image']
+        image = Image.open(image_file.stream)
 
+        # Preprocess
         rgb_image = preprocess_image(image)
         frame = np.array(rgb_image)
+        
         print("Am here : ", frame.shape)
 
         device = "cuda" if torch.cuda.is_available() else "cpu"
