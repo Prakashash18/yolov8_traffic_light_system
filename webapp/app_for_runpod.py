@@ -17,9 +17,9 @@ import json
 
 
 app = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 64 * 1024 * 1024  # 16 MB
 CORS(app)  # Enable CORS
 
-app.config['MAX_CONTENT_LENGTH'] = 64 * 1024 * 1024  # 16 MB
 
 
 crossing_time = 10
