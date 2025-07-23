@@ -391,6 +391,9 @@ async function processFrame() {
 
     const imageData = canvas2.toDataURL('image/png').replace(/^data:image\/(png|jpg);base64,/, '');
 
+    console.log(`Payload size: ${(imageData.length * 3 / 4 / 1024).toFixed(2)} KB`);
+
+
     try {
         const response = await fetch("/predict", {
         method: "POST",
