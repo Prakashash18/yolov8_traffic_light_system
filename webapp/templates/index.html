@@ -375,51 +375,44 @@ else{
 console.log("In cross btns 3");
 
 
-
-// Add this function to your script section
 async function processFrame() {
-    // console.log(canvas.width, canvas.height);
-    // Set the canvas dimensions to match the video dimensions
-    // const video = document.getElementById("video");
     const canvas2 = document.getElementById("webcam-canvas-test");
     canvas2.width = video.videoWidth;
     canvas2.height = video.videoHeight;
 
-    // Get the image data from the video
     const ctx2 = canvas2.getContext("2d");
     ctx2.drawImage(video, 0, 0);
 
-    const imageData = canvas2.toDataURL('image/png').replace(/^data:image\/(png|jpg);base64,/, '');
+    canvas2.toBlob(async (blob) => {
+        console.log(`Blob size: ${(blob.size / 1024).toFixed(2)} KB`);
 
-    console.log(`Payload size: ${(imageData.length * 3 / 4 / 1024).toFixed(2)} KB`);
+        const formData = new FormData();
+        formData.append("image", blob, "frame.png");
 
+        try {
+            const response = await fetch("/predict", {
+                method: "POST",
+                body: formData
+            });
 
-   try {
-    const response = await fetch("/predict", {
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({ image_data: imageData })
-    });
+            const text = await response.text();
+            console.log("Raw server response:", text);
 
-    const text = await response.text();
-    console.log("Raw server response:", text);
+            let result;
+            try {
+                result = JSON.parse(text);
+            } catch (jsonErr) {
+                console.error("Failed to parse JSON:", jsonErr);
+                return;
+            }
 
-    let result;
-    try {
-        result = JSON.parse(text);
-    } catch (jsonErr) {
-        console.error("Failed to parse JSON:", jsonErr);
-        return;
-    }
+            displayObjectDetectionResults(result);
+            requestAnimationFrame(processFrame);
 
-    displayObjectDetectionResults(result);
-    requestAnimationFrame(processFrame);
-
-} catch (err) {
-    console.error("Fetch or processing error:", err);
-}
+        } catch (err) {
+            console.error("Fetch or processing error:", err);
+        }
+    }, "image/png");
 }
 
 
