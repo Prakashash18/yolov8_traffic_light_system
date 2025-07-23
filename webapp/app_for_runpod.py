@@ -51,26 +51,27 @@ def handle_crossing():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    if request.method == 'POST':
-        # Read the image data from the request
+    try:
         image_data = request.form['image_data']
         print("Incoming base64 size (bytes):", len(image_data.encode()))
         image = Image.open(io.BytesIO(base64.b64decode(image_data)))
 
-        # Preprocess image
         rgb_image = preprocess_image(image)
         frame = np.array(rgb_image)
         print("Am here : ", frame.shape)
 
-        # Predict on GPU (CUDA) if available
         device = "cuda" if torch.cuda.is_available() else "cpu"
         print("Using device:", device)
         results = model(frame, device=device)
 
-        # Post-process the predictions and return the response
         response = postprocess_predictions(results)
         print("Response size (bytes):", len(json.dumps(response).encode()))
         return jsonify([response])
+    
+    except Exception as e:
+        print("🔥 Error in /predict:")
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
 
 def preprocess_image(image):
     global id
