@@ -1,21 +1,5 @@
 #!/bin/bash
 
-# Define the repo directory name
-REPO_DIR="yolov8_traffic_light_system"
-
-# Remove existing folder if it exists
-if [ -d "$REPO_DIR" ]; then
-    echo "Removing existing folder: $REPO_DIR"
-    rm -rf "$REPO_DIR"
-fi
-
-# Clone the repository
-echo "Cloning repository..."
-git clone https://github.com/Prakashash18/yolov8_traffic_light_system.git
-
-# Change to repo directory
-cd "$REPO_DIR" || { echo "Failed to cd into $REPO_DIR"; exit 1; }
-
 # Create Python virtual environment
 echo "Creating virtual environment..."
 python3 -m venv venv
